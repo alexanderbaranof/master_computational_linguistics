@@ -15,6 +15,7 @@ SAVE_FIRST_TASK_PATH = './results/task_1/freq_dict.csv'
 PAGE_TO_PARSE = 'http://lib.ru/POEZIQ/PESSOA/lirika.txt'
 SAVE_SECOND_TASK_PATH = './data/lirika.txt'
 LIST_JSON_PATH = './results/task_2/dictionary.json'
+LEMMAS_WITH_TWO_LETTERS_O_PATH = './results/task_2/LEMMAS_WITH_TWO_LETTERS_O.txt'
 
 
 def remove_punctuation(text: str) -> str:
@@ -33,6 +34,9 @@ def task_one(file_path: str) -> list:
     text = text.lower()
     # Remove punctuation
     text = remove_punctuation(text)
+    # Some preprocessing
+    text = text.replace('\n', '')
+    text = text.replace('\t', '')
     # Tokenize text
     tokens = text.split(' ')
     # Calculate frequency
@@ -51,12 +55,17 @@ def task_two(tokens: list) -> None:
     # Create morph analyzer
     morph = pymorphy2.MorphAnalyzer()
     # Going through all the tokens
-    for token in tokens:
+    for token in set(tokens):
         pv = morph.parse(token)
         normal_form = str(pv[0].normal_form)
         # Lemmas with two letters o
         if normal_form.count('о') == 2:
             lemmas_with_two_letters_o.append(normal_form)
+    # Save the result
+    f = open(LEMMAS_WITH_TWO_LETTERS_O_PATH, 'w')
+    for token in lemmas_with_two_letters_o:
+        f.write(token + '\n')
+    f.close()
 
     # Get page from internet
     r = requests.get(PAGE_TO_PARSE)
